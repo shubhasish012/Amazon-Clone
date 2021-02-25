@@ -1,34 +1,39 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import Header from './Header';
 import Home from './Home';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Checkout from './Checkout';
 import Login from './Login';
-import {auth} from './firebase';
-import {useStateValue} from "./StateProvider";
+import { auth } from './firebase';
+import { useStateValue } from "./StateProvider";
 import Payment from './Payment';
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 
+const promise = loadStripe(
+  "pk_test_51IOfFwGVcc1t43tVOAGkSnQRsg2ERSLdSJpPI6BQJiNAIQ8cIQSKwZzTJbktUiJyZGeeqOdcTqufd1DkrvG0jN1w00NknbAG1P"
+)
 
 function App() {
-  const [{},dispatch] = useStateValue();
+  const [{ }, dispatch] = useStateValue();
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    auth.onAuthStateChanged(authUser =>{
+    auth.onAuthStateChanged(authUser => {
       console.log("THE USER IS >>>", authUser);
 
-      if(authUser){
+      if (authUser) {
         //the user just logged in / the user was logged in
         dispatch({
-          type:'SET_USER',
+          type: 'SET_USER',
           user: authUser
         })
-      } else{
+      } else {
         // the user is logged out
         dispatch({
-          type:'SET_USER',
-          user:null
+          type: 'SET_USER',
+          user: null
         })
       }
     })
@@ -47,7 +52,9 @@ function App() {
           </Route>
           <Route path="/payment">
             <Header />
-            <Payment />
+            <Elements stripe={promise}>
+              <Payment />
+            </Elements>
           </Route>
           <Route path="/">
             <Header />
